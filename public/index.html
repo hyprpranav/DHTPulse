@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DHTPulse — Live IoT Monitoring</title>
+  <meta name="description" content="DHTPulse - Real-Time IoT Monitoring & Connectivity Lab for ESP32 and Firebase Realtime Database.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83'/></svg>">
+</head>
+<body>
+  <!-- Background Glow Accents -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+
+  <!-- Notification Banner / Alert -->
+  <div id="toast" class="toast hidden">
+    <div class="toast-icon" id="toast-icon">ℹ️</div>
+    <div class="toast-message" id="toast-message">Message</div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="header">
+      <div class="header-brand">
+        <div class="logo-badge">
+          <svg class="pulse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">DHTPulse</h1>
+          <p class="brand-tagline">Real-Time IoT Monitoring & Connectivity Lab</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Live Stream State Indicator -->
+        <div id="stream-indicator" class="status-pill status-connecting">
+          <span class="status-dot"></span>
+          <span id="stream-indicator-text">Connecting...</span>
+        </div>
+        
+        <!-- Firebase Config Settings Button -->
+        <button id="btn-open-settings" class="btn btn-outline" title="Firebase Settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span class="btn-text">Config</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Controls Toolbar -->
+    <section class="controls-bar">
+      <div class="controls-group">
+        <!-- 1. Refresh Data -->
+        <button id="btn-refresh" class="btn btn-secondary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          <span>Refresh Data</span>
+        </button>
+
+        <!-- 2. Live Monitoring Toggle -->
+        <button id="btn-toggle-live" class="btn btn-primary active">
+          <span class="btn-live-dot"></span>
+          <span id="btn-live-text">Live Monitoring: ON</span>
+        </button>
+
+        <!-- 3. Clear Display -->
+        <button id="btn-clear-table" class="btn btn-secondary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span>Clear Display</span>
+        </button>
+
+        <!-- 4. Connection Test -->
+        <button id="btn-test-connection" class="btn btn-secondary">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 11a9 9 0 0 1 9 9"></path>
+            <path d="M4 4a16 16 0 0 1 16 16"></path>
+            <circle cx="5" cy="19" r="1"></circle>
+          </svg>
+          <span>Connection Test</span>
+        </button>
+      </div>
+
+      <div class="last-sync-badge">
+        <span>Last Ping: </span>
+        <strong id="display-last-sync">--:--:--</strong>
+      </div>
+    </section>
+
+    <!-- Section A: Device Status Overview -->
+    <section class="device-status-card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="card-icon">📡</span>
+          <h2 class="card-title">Device Telemetry & Status</h2>
+        </div>
+        <div id="device-presence-badge" class="badge badge-offline">
+          <span class="badge-dot"></span>
+          <span id="device-presence-text">OFFLINE</span>
+        </div>
+      </div>
+
+      <div class="status-grid">
+        <div class="status-item">
+          <span class="status-label">Device Name</span>
+          <span class="status-value highlight" id="device-name">ESP32 Device 01</span>
+        </div>
+
+        <div class="status-item">
+          <span class="status-label">Wi-Fi Network</span>
+          <span class="status-value" id="wifi-status">CONNECTED (STA)</span>
+        </div>
+
+        <div class="status-item">
+          <span class="status-label">Firebase RTDB</span>
+          <span class="status-value" id="firebase-status">INITIALIZING</span>
+        </div>
+
+        <div class="status-item">
+          <span class="status-label">Device State</span>
+          <span class="status-value" id="device-state-desc">Waiting for telemetry...</span>
+        </div>
+
+        <div class="status-item full-width">
+          <span class="status-label">Last Data Received</span>
+          <span class="status-value font-mono" id="last-received-time">Awaiting initial handshake...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section B & C: Sensor Monitoring Cards -->
+    <section class="metrics-grid">
+      <!-- Temperature Card -->
+      <div class="metric-card temp-card">
+        <div class="metric-header">
+          <div class="metric-title-wrap">
+            <span class="metric-emoji">🌡️</span>
+            <div>
+              <h3 class="metric-title">Temperature</h3>
+              <p class="metric-subtitle">DHT11 Ambient Sensor</p>
+            </div>
+          </div>
+          <span class="metric-badge" id="temp-badge">Normal</span>
+        </div>
+
+        <div class="metric-value-container">
+          <span class="metric-number" id="temp-value">--.-</span>
+          <span class="metric-unit">°C</span>
+        </div>
+
+        <!-- Range Visualizer -->
+        <div class="meter-container">
+          <div class="meter-bar">
+            <div id="temp-bar" class="meter-fill temp-fill" style="width: 0%;"></div>
+          </div>
+          <div class="meter-labels">
+            <span>0°C</span>
+            <span>25°C</span>
+            <span>50°C</span>
+          </div>
+        </div>
+
+        <div class="metric-footer">
+          <span>Target Range: 18°C – 28°C</span>
+          <span id="temp-trend" class="font-mono">--</span>
+        </div>
+      </div>
+
+      <!-- Humidity Card -->
+      <div class="metric-card hum-card">
+        <div class="metric-header">
+          <div class="metric-title-wrap">
+            <span class="metric-emoji">💧</span>
+            <div>
+              <h3 class="metric-title">Relative Humidity</h3>
+              <p class="metric-subtitle">DHT11 Moisture Sensor</p>
+            </div>
+          </div>
+          <span class="metric-badge" id="hum-badge">Comfort</span>
+        </div>
+
+        <div class="metric-value-container">
+          <span class="metric-number" id="hum-value">--</span>
+          <span class="metric-unit">%</span>
+        </div>
+
+        <!-- Range Visualizer -->
+        <div class="meter-container">
+          <div class="meter-bar">
+            <div id="hum-bar" class="meter-fill hum-fill" style="width: 0%;"></div>
+          </div>
+          <div class="meter-labels">
+            <span>0%</span>
+            <span>50%</span>
+            <span>100%</span>
+          </div>
+        </div>
+
+        <div class="metric-footer">
+          <span>Optimal Range: 40% – 60%</span>
+          <span id="hum-trend" class="font-mono">--</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section D: Historical Telemetry Table -->
+    <section class="history-card">
+      <div class="card-header">
+        <div class="card-title-group">
+          <span class="card-icon">📋</span>
+          <h2 class="card-title">Telemetry History</h2>
+          <span class="records-pill" id="history-count">0 Records</span>
+        </div>
+        <div class="history-meta">
+          <span class="text-muted">Showing latest up to 20 readings</span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 70px;">S.No</th>
+              <th>Temperature</th>
+              <th>Humidity</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody">
+            <tr>
+              <td colspan="4" class="empty-state">
+                <div class="empty-wrap">
+                  <span class="empty-icon">⏳</span>
+                  <p>Waiting for live stream or click "Refresh Data"...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-meta">
+        <span>DHTPulse Lab v1.0.0</span>
+        <span class="separator">•</span>
+        <span>ESP32 + Firebase Realtime Database</span>
+        <span class="separator">•</span>
+        <span>Static Web Frontend on Vercel</span>
+      </div>
+      <div class="footer-status">
+        <span class="device-node-path">Path: <code id="rtdb-path-preview">/DHTPulse/device_01</code></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Firebase Configuration Modal -->
+  <div id="config-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Firebase Connection Settings</h3>
+        <button id="btn-close-modal" class="btn-close">&times;</button>
+      </div>
+      <p class="modal-subtitle">
+        Update your Firebase Web App credentials. Settings are stored safely in your browser's <code>localStorage</code>.
+      </p>
+
+      <form id="config-form" class="config-form">
+        <div class="form-group">
+          <label for="cfg-apiKey">API Key (Web API Key)</label>
+          <input type="text" id="cfg-apiKey" placeholder="AIzaSy..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-dbUrl">Database URL (RTDB)</label>
+          <input type="url" id="cfg-dbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-projId">Project ID</label>
+          <input type="text" id="cfg-projId" placeholder="dhtpulse-lab" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-authType">Authentication Mode</label>
+          <select id="cfg-authType">
+            <option value="anonymous">Anonymous Authentication</option>
+            <option value="email">Email / Password</option>
+          </select>
+        </div>
+
+        <div id="email-auth-fields" class="hidden">
+          <div class="form-group">
+            <label for="cfg-email">Test User Email</label>
+            <input type="email" id="cfg-email" placeholder="dhtpulse-device@test.com">
+          </div>
+          <div class="form-group">
+            <label for="cfg-password">Test User Password</label>
+            <input type="password" id="cfg-password" placeholder="••••••••">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="cfg-deviceId">Device Identifier</label>
+          <input type="text" id="cfg-deviceId" value="device_01" required>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-reset-config" class="btn btn-secondary">Restore Defaults</button>
+          <button type="submit" class="btn btn-primary">Save & Reconnect</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Load Vanilla Application Logic (ES Module) -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
