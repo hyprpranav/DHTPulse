@@ -3,39 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DHTPulse — Live IoT Monitoring</title>
-  <meta name="description" content="DHTPulse - Real-Time IoT Monitoring & Connectivity Lab for ESP32 and Firebase Realtime Database.">
+  <title>ThermoTrace — Industrial Thermal & Optical Monitoring</title>
+  <meta name="description" content="ThermoTrace - Multi-sensor non-contact thermal monitoring for industrial foundry converters, machinery shell heat analysis, and optical radiation detection.">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300f0ff'><path d='M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83'/></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f59e0b'><path d='M12 2c1.1 0 2 .9 2 2v10.17c1.8.85 3 2.65 3 4.83 0 2.76-2.24 5-5 5s-5-2.24-5-5c0-2.18 1.2-3.98 3-4.83V4c0-1.1.9-2 2-2zm0 15c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z'/></svg>">
 </head>
 <body>
-  <!-- Background Glow Accents -->
-  <div class="ambient-glow glow-1"></div>
-  <div class="ambient-glow glow-2"></div>
+  <!-- Ambient Industrial Glow Accents -->
+  <div class="ambient-glow glow-thermal"></div>
+  <div class="ambient-glow glow-cyan"></div>
 
-  <!-- Notification Banner / Alert -->
+  <!-- Notification Toast -->
   <div id="toast" class="toast hidden">
     <div class="toast-icon" id="toast-icon">ℹ️</div>
-    <div class="toast-message" id="toast-message">Message</div>
+    <div class="toast-message" id="toast-message">Notification</div>
   </div>
 
-  <!-- Main Container -->
   <div class="app-container">
     
     <!-- Top Header -->
     <header class="header">
       <div class="header-brand">
         <div class="logo-badge">
-          <svg class="pulse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          <svg class="pulse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"></path>
           </svg>
         </div>
         <div>
-          <h1 class="brand-title">DHTPulse</h1>
-          <p class="brand-tagline">Real-Time IoT Monitoring & Connectivity Lab</p>
+          <div class="brand-title-wrap">
+            <h1 class="brand-title">ThermoTrace</h1>
+            <span class="system-tag">FOUNDRY CONVERTER LAB</span>
+          </div>
+          <p class="brand-tagline">Multi-Sensor Non-Contact Thermal & Optical Radiation Surveillance</p>
         </div>
       </div>
 
@@ -48,11 +50,11 @@
         
         <!-- Firebase Config Settings Button -->
         <button id="btn-open-settings" class="btn btn-outline" title="Firebase Settings">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
-          <span class="btn-text">Config</span>
+          <span class="btn-text">Settings</span>
         </button>
       </div>
     </header>
@@ -60,7 +62,7 @@
     <!-- Controls Toolbar -->
     <section class="controls-bar">
       <div class="controls-group">
-        <!-- 1. Refresh Data -->
+        <!-- Refresh Data -->
         <button id="btn-refresh" class="btn btn-secondary">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
@@ -68,183 +70,342 @@
           <span>Refresh Data</span>
         </button>
 
-        <!-- 2. Live Monitoring Toggle -->
+        <!-- Live Monitoring Toggle -->
         <button id="btn-toggle-live" class="btn btn-primary active">
           <span class="btn-live-dot"></span>
-          <span id="btn-live-text">Live Monitoring: ON</span>
+          <span id="btn-live-text">Live Stream: ON</span>
         </button>
 
-        <!-- 3. Clear Display -->
-        <button id="btn-clear-table" class="btn btn-secondary">
-          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"></polyline>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-          </svg>
-          <span>Clear Display</span>
-        </button>
-
-        <!-- 4. Connection Test -->
+        <!-- Connection Test -->
         <button id="btn-test-connection" class="btn btn-secondary">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M4 11a9 9 0 0 1 9 9"></path>
             <path d="M4 4a16 16 0 0 1 16 16"></path>
             <circle cx="5" cy="19" r="1"></circle>
           </svg>
-          <span>Connection Test</span>
+          <span>Ping Cloud</span>
+        </button>
+
+        <!-- Export Excel / CSV -->
+        <button id="btn-export-csv" class="btn btn-accent">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Export Excel/CSV</span>
         </button>
       </div>
 
       <div class="last-sync-badge">
-        <span>Last Ping: </span>
+        <span>Cloud Ping: </span>
         <strong id="display-last-sync">--:--:--</strong>
       </div>
     </section>
 
-    <!-- Section A: Device Status Overview -->
+    <!-- Section A: Device Telemetry & Converter Status Overview -->
     <section class="device-status-card">
       <div class="card-header">
         <div class="card-title-group">
-          <span class="card-icon">📡</span>
-          <h2 class="card-title">Device Telemetry & Status</h2>
+          <span class="card-icon">🏭</span>
+          <div>
+            <h2 class="card-title">Converter Shell Unit 01 — Telemetry Stream</h2>
+            <p class="card-subtitle">Non-Contact Pyrometry & Optical Emission Analysis</p>
+          </div>
         </div>
-        <div id="device-presence-badge" class="badge badge-offline">
-          <span class="badge-dot"></span>
-          <span id="device-presence-text">OFFLINE</span>
+        <div class="header-status-cluster">
+          <div id="thermal-alert-badge" class="badge badge-normal">
+            <span class="badge-dot"></span>
+            <span id="thermal-alert-text">THERMAL NORMAL</span>
+          </div>
+          <div id="device-presence-badge" class="badge badge-offline">
+            <span class="badge-dot"></span>
+            <span id="device-presence-text">OFFLINE</span>
+          </div>
         </div>
       </div>
 
       <div class="status-grid">
         <div class="status-item">
-          <span class="status-label">Device Name</span>
-          <span class="status-value highlight" id="device-name">ESP32 Device 01</span>
+          <span class="status-label">Monitoring Target</span>
+          <span class="status-value highlight" id="device-name">Converter Shell (Unit 01)</span>
         </div>
 
         <div class="status-item">
-          <span class="status-label">Wi-Fi Network</span>
+          <span class="status-label">Wi-Fi Connection</span>
           <span class="status-value" id="wifi-status">CONNECTED (STA)</span>
         </div>
 
         <div class="status-item">
-          <span class="status-label">Firebase RTDB</span>
+          <span class="status-label">Firebase Cloud RTDB</span>
           <span class="status-value" id="firebase-status">INITIALIZING</span>
         </div>
 
         <div class="status-item">
-          <span class="status-label">Device State</span>
-          <span class="status-value" id="device-state-desc">Waiting for telemetry...</span>
+          <span class="status-label">Refractory Degradation Risk</span>
+          <span class="status-value" id="refractory-risk-desc">Awaiting sensor data...</span>
         </div>
 
         <div class="status-item full-width">
-          <span class="status-label">Last Data Received</span>
+          <span class="status-label">Last Transmission Received</span>
           <span class="status-value font-mono" id="last-received-time">Awaiting initial handshake...</span>
         </div>
       </div>
     </section>
 
-    <!-- Section B & C: Sensor Monitoring Cards -->
+    <!-- Section B: 4 Sensor Surveillance Cards -->
     <section class="metrics-grid">
-      <!-- Temperature Card -->
-      <div class="metric-card temp-card">
+      
+      <!-- CARD 1: PRIMARY - MLX90614 Machinery Surface Heat (Object Temp) -->
+      <div class="metric-card card-primary-thermal">
         <div class="metric-header">
           <div class="metric-title-wrap">
-            <span class="metric-emoji">🌡️</span>
+            <span class="metric-emoji">🔥</span>
             <div>
-              <h3 class="metric-title">Temperature</h3>
-              <p class="metric-subtitle">DHT11 Ambient Sensor</p>
+              <h3 class="metric-title">Machinery Surface Heat</h3>
+              <p class="metric-subtitle">MLX90614 Non-Contact Pyrometer</p>
             </div>
           </div>
-          <span class="metric-badge" id="temp-badge">Normal</span>
+          <span class="metric-badge badge-primary-hot" id="mlx-alert-badge">SURFACE SENSOR</span>
         </div>
 
         <div class="metric-value-container">
-          <span class="metric-number" id="temp-value">--.-</span>
+          <span class="metric-number" id="machinery-temp-value">--.-</span>
           <span class="metric-unit">°C</span>
         </div>
 
-        <!-- Range Visualizer -->
+        <!-- Thermal Range Gauge -->
         <div class="meter-container">
           <div class="meter-bar">
-            <div id="temp-bar" class="meter-fill temp-fill" style="width: 0%;"></div>
+            <div id="machinery-temp-bar" class="meter-fill fill-machinery" style="width: 0%;"></div>
           </div>
           <div class="meter-labels">
-            <span>0°C</span>
-            <span>25°C</span>
-            <span>50°C</span>
+            <span>0°C (Safe)</span>
+            <span>300°C (Elevated)</span>
+            <span>600°C+ (Extreme)</span>
           </div>
         </div>
 
         <div class="metric-footer">
-          <span>Target Range: 18°C – 28°C</span>
-          <span id="temp-trend" class="font-mono">--</span>
+          <span>Sensor Die Temp: <strong id="mlx-ambient-val">--.- °C</strong></span>
+          <span id="machinery-temp-trend" class="font-mono">--</span>
         </div>
       </div>
 
-      <!-- Humidity Card -->
-      <div class="metric-card hum-card">
+      <!-- CARD 2: COMPARISON - Thermal Gradient (ΔT = Machinery - Ambient) -->
+      <div class="metric-card card-gradient">
         <div class="metric-header">
           <div class="metric-title-wrap">
-            <span class="metric-emoji">💧</span>
+            <span class="metric-emoji">⚖️</span>
             <div>
-              <h3 class="metric-title">Relative Humidity</h3>
-              <p class="metric-subtitle">DHT11 Moisture Sensor</p>
+              <h3 class="metric-title">Thermal Differential (ΔT)</h3>
+              <p class="metric-subtitle">Machinery vs. Ambient Gradient</p>
             </div>
           </div>
-          <span class="metric-badge" id="hum-badge">Comfort</span>
+          <span class="metric-badge" id="gradient-badge">STABLE GRADIENT</span>
         </div>
 
         <div class="metric-value-container">
-          <span class="metric-number" id="hum-value">--</span>
-          <span class="metric-unit">%</span>
+          <span class="metric-number text-gradient" id="delta-temp-value">--.-</span>
+          <span class="metric-unit">°C Δ</span>
         </div>
 
-        <!-- Range Visualizer -->
         <div class="meter-container">
           <div class="meter-bar">
-            <div id="hum-bar" class="meter-fill hum-fill" style="width: 0%;"></div>
+            <div id="delta-temp-bar" class="meter-fill fill-gradient" style="width: 0%;"></div>
           </div>
           <div class="meter-labels">
-            <span>0%</span>
-            <span>50%</span>
-            <span>100%</span>
+            <span>0°C Δ</span>
+            <span>150°C Δ</span>
+            <span>400°C+ Δ (Danger)</span>
           </div>
         </div>
 
         <div class="metric-footer">
-          <span>Optimal Range: 40% – 60%</span>
-          <span id="hum-trend" class="font-mono">--</span>
+          <span>Refractory Warning: <strong id="delta-risk-text">Normal Range</strong></span>
+          <span class="font-mono" id="gradient-trend">--</span>
         </div>
       </div>
+
+      <!-- CARD 3: OPTICAL - BPW34 Silicon Photodiode Optical Radiation -->
+      <div class="metric-card card-optical">
+        <div class="metric-header">
+          <div class="metric-title-wrap">
+            <span class="metric-emoji">⚡</span>
+            <div>
+              <h3 class="metric-title">Optical Radiation Flux</h3>
+              <p class="metric-subtitle">BPW34 Silicon PIN Photodiode</p>
+            </div>
+          </div>
+          <span class="metric-badge badge-optical" id="optical-badge">RADIATION SENSOR</span>
+        </div>
+
+        <div class="metric-value-container">
+          <span class="metric-number" id="optical-volt-value">-.--</span>
+          <span class="metric-unit">V</span>
+        </div>
+
+        <div class="meter-container">
+          <div class="meter-bar">
+            <div id="optical-bar" class="meter-fill fill-optical" style="width: 0%;"></div>
+          </div>
+          <div class="meter-labels">
+            <span>0.0V (Dark)</span>
+            <span>1.65V (Medium)</span>
+            <span>3.3V (Saturated)</span>
+          </div>
+        </div>
+
+        <div class="metric-footer">
+          <span>Radiation Index: <strong id="optical-index-val">-- / 1000</strong></span>
+          <span id="optical-trend" class="font-mono">--</span>
+        </div>
+      </div>
+
+      <!-- CARD 4: SECONDARY - DHT11 Environmental Reference -->
+      <div class="metric-card card-environmental">
+        <div class="metric-header">
+          <div class="metric-title-wrap">
+            <span class="metric-emoji">🌱</span>
+            <div>
+              <h3 class="metric-title">Foundry Environment</h3>
+              <p class="metric-subtitle">DHT11 Ambient Reference</p>
+            </div>
+          </div>
+          <span class="metric-badge" id="env-badge">AMBIENT</span>
+        </div>
+
+        <div class="dual-value-wrap">
+          <div class="dual-item">
+            <span class="dual-label">Ambient Temp</span>
+            <div class="dual-val-row">
+              <span class="dual-number" id="env-temp-value">--.-</span>
+              <span class="dual-unit">°C</span>
+            </div>
+          </div>
+          <div class="dual-separator"></div>
+          <div class="dual-item">
+            <span class="dual-label">Relative Humidity</span>
+            <div class="dual-val-row">
+              <span class="dual-number" id="env-hum-value">--</span>
+              <span class="dual-unit">%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="meter-container">
+          <div class="meter-bar">
+            <div id="env-hum-bar" class="meter-fill fill-humidity" style="width: 0%;"></div>
+          </div>
+          <div class="meter-labels">
+            <span>0% Humidity</span>
+            <span>50%</span>
+            <span>100% RH</span>
+          </div>
+        </div>
+
+        <div class="metric-footer">
+          <span>Sensor Channel: <strong>GPIO 4</strong></span>
+          <span class="font-mono" id="env-status-desc">Nominal</span>
+        </div>
+      </div>
+
     </section>
 
-    <!-- Section D: Historical Telemetry Table -->
+    <!-- Section C: Full Historical Telemetry & Data Management -->
     <section class="history-card">
-      <div class="card-header">
+      <div class="card-header history-header-wrap">
         <div class="card-title-group">
-          <span class="card-icon">📋</span>
-          <h2 class="card-title">Telemetry History</h2>
-          <span class="records-pill" id="history-count">0 Records</span>
+          <span class="card-icon">📊</span>
+          <div>
+            <h2 class="card-title">Telemetry Ledger & Cloud Storage</h2>
+            <p class="card-subtitle">Permanent non-destructive logs with date filtering, Excel export & storage pruning</p>
+          </div>
         </div>
-        <div class="history-meta">
-          <span class="text-muted">Showing latest up to 20 readings</span>
+
+        <!-- Filter Controls -->
+        <div class="history-controls-cluster">
+          <!-- Time Filter -->
+          <div class="filter-item">
+            <label for="filter-time">Time Range:</label>
+            <select id="filter-time" class="select-input">
+              <option value="all">All Available Records</option>
+              <option value="today">Today Only</option>
+              <option value="24h">Past 24 Hours</option>
+              <option value="7d">Past 7 Days</option>
+            </select>
+          </div>
+
+          <!-- Alert Level Filter -->
+          <div class="filter-item">
+            <label for="filter-alert">Alert Filter:</label>
+            <select id="filter-alert" class="select-input">
+              <option value="all">All Alerts</option>
+              <option value="elevated">Elevated+ (≥120°C)</option>
+              <option value="warning">Warning+ (≥300°C)</option>
+              <option value="critical">Critical Only (≥500°C)</option>
+            </select>
+          </div>
+
+          <!-- Records Count Pill -->
+          <span class="records-pill" id="history-count">0 Records</span>
         </div>
       </div>
 
+      <!-- Batch Management Toolbar -->
+      <div class="batch-toolbar">
+        <div class="batch-left">
+          <label class="checkbox-container">
+            <input type="checkbox" id="select-all-rows">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">Select All Visible</span>
+          </label>
+          <span id="selected-count" class="text-muted text-sm">(0 selected)</span>
+        </div>
+
+        <div class="batch-actions">
+          <!-- Delete Selected from Firebase -->
+          <button id="btn-delete-selected" class="btn btn-danger-outline" disabled title="Delete selected entries from Firebase to save cloud space">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>Delete Selected</span>
+          </button>
+
+          <!-- Prune Older Than 7 Days -->
+          <button id="btn-prune-old" class="btn btn-secondary" title="Safely remove readings older than 7 days to free up Firebase storage">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Prune &gt; 7 Days</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Container -->
       <div class="table-container">
         <table class="data-table">
           <thead>
             <tr>
-              <th style="width: 70px;">S.No</th>
-              <th>Temperature</th>
+              <th style="width: 40px;"></th>
+              <th style="width: 60px;">#</th>
+              <th>Machinery Temp</th>
+              <th>Ambient Temp</th>
+              <th>Thermal ΔT</th>
               <th>Humidity</th>
+              <th>Optical Sensor</th>
+              <th>Status Alert</th>
               <th>Timestamp</th>
             </tr>
           </thead>
           <tbody id="history-tbody">
             <tr>
-              <td colspan="4" class="empty-state">
+              <td colspan="9" class="empty-state">
                 <div class="empty-wrap">
                   <span class="empty-icon">⏳</span>
-                  <p>Waiting for live stream or click "Refresh Data"...</p>
+                  <p>Connecting to Firebase historical ledger...</p>
                 </div>
               </td>
             </tr>
@@ -256,68 +417,66 @@
     <!-- Footer -->
     <footer class="footer">
       <div class="footer-meta">
-        <span>DHTPulse Lab v1.0.0</span>
+        <span><strong>ThermoTrace Lab v2.0.0</strong></span>
         <span class="separator">•</span>
-        <span>ESP32 + Firebase Realtime Database</span>
+        <span>MLX90614 (IR) + BPW34 (PIN Optic) + DHT11</span>
         <span class="separator">•</span>
-        <span>Static Web Frontend on Vercel</span>
+        <span>Firebase RTDB Cloud</span>
       </div>
       <div class="footer-status">
-        <span class="device-node-path">Path: <code id="rtdb-path-preview">/DHTPulse/device_01</code></span>
+        <span class="device-node-path">Cloud Node: <code id="rtdb-path-preview">/ThermoTrace/converter_01</code></span>
       </div>
     </footer>
 
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Confirm Cloud Storage Cleanup</h3>
+        <button id="btn-close-delete-modal" class="btn-close">&times;</button>
+      </div>
+      <p class="modal-subtitle" id="delete-modal-msg">
+        Are you sure you want to delete these records from Firebase Realtime Database? This will permanently free up cloud space.
+      </p>
+      <div class="modal-actions">
+        <button type="button" id="btn-cancel-delete" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="btn-confirm-delete" class="btn btn-danger">Confirm Delete</button>
+      </div>
+    </div>
   </div>
 
   <!-- Firebase Configuration Modal -->
   <div id="config-modal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>Firebase Connection Settings</h3>
+        <h3>ThermoTrace Cloud Configuration</h3>
         <button id="btn-close-modal" class="btn-close">&times;</button>
       </div>
       <p class="modal-subtitle">
-        Update your Firebase Web App credentials. Settings are stored safely in your browser's <code>localStorage</code>.
+        Firebase credentials are stored securely in browser <code>localStorage</code>.
       </p>
 
       <form id="config-form" class="config-form">
         <div class="form-group">
-          <label for="cfg-apiKey">API Key (Web API Key)</label>
-          <input type="text" id="cfg-apiKey" placeholder="AIzaSy..." required>
+          <label for="cfg-apiKey">Firebase Web API Key</label>
+          <input type="text" id="cfg-apiKey" required>
         </div>
 
         <div class="form-group">
           <label for="cfg-dbUrl">Database URL (RTDB)</label>
-          <input type="url" id="cfg-dbUrl" placeholder="https://your-project-default-rtdb.firebaseio.com" required>
+          <input type="url" id="cfg-dbUrl" required>
         </div>
 
         <div class="form-group">
           <label for="cfg-projId">Project ID</label>
-          <input type="text" id="cfg-projId" placeholder="dhtpulse-lab" required>
+          <input type="text" id="cfg-projId" required>
         </div>
 
         <div class="form-group">
-          <label for="cfg-authType">Authentication Mode</label>
-          <select id="cfg-authType">
-            <option value="anonymous">Anonymous Authentication</option>
-            <option value="email">Email / Password</option>
-          </select>
-        </div>
-
-        <div id="email-auth-fields" class="hidden">
-          <div class="form-group">
-            <label for="cfg-email">Test User Email</label>
-            <input type="email" id="cfg-email" placeholder="dhtpulse-device@test.com">
-          </div>
-          <div class="form-group">
-            <label for="cfg-password">Test User Password</label>
-            <input type="password" id="cfg-password" placeholder="••••••••">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="cfg-deviceId">Device Identifier</label>
-          <input type="text" id="cfg-deviceId" value="device_01" required>
+          <label for="cfg-deviceId">Device Target Node</label>
+          <input type="text" id="cfg-deviceId" value="converter_01" required>
         </div>
 
         <div class="modal-actions">
@@ -328,7 +487,7 @@
     </div>
   </div>
 
-  <!-- Load Vanilla Application Logic (ES Module) -->
+  <!-- Application Logic (ES Module) -->
   <script type="module" src="app.js"></script>
 </body>
 </html>

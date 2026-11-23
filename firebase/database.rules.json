@@ -2,54 +2,38 @@
   "rules": {
     ".read": false,
     ".write": false,
-    "DHTPulse": {
+    "ThermoTrace": {
       ".read": "auth != null",
-      "device_01": {
+      "$deviceId": {
         "latest": {
           ".read": "auth != null",
-          ".write": "auth != null",
-          ".validate": "newData.hasChildren(['temperature', 'humidity', 'timestamp', 'status'])",
-          "temperature": {
-            ".validate": "newData.isNumber() && newData.val() >= -40 && newData.val() <= 80"
-          },
-          "humidity": {
-            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
-          },
-          "timestamp": {
-            ".validate": "newData.isNumber()"
-          },
-          "status": {
-            ".validate": "newData.isString() && (newData.val() == 'online' || newData.val() == 'offline')"
-          },
-          "$other": {
-            ".validate": false
-          }
+          ".write": "auth != null"
         },
         "history": {
           ".read": "auth != null",
+          ".write": "auth != null",
           "$timestamp": {
-            ".write": "auth != null && !data.exists()",
-            ".validate": "newData.hasChildren(['temperature', 'humidity', 'timestamp'])",
-            "temperature": {
-              ".validate": "newData.isNumber() && newData.val() >= -40 && newData.val() <= 80"
-            },
-            "humidity": {
-              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100"
-            },
-            "timestamp": {
-              ".validate": "newData.isNumber()"
-            },
-            "$other": {
-              ".validate": false
-            }
+            ".read": "auth != null",
+            ".write": "auth != null"
           }
-        },
-        "$other": {
-          ".validate": false
         }
-      },
-      "$other": {
-        ".validate": false
+      }
+    },
+    "DHTPulse": {
+      ".read": "auth != null",
+      "$deviceId": {
+        "latest": {
+          ".read": "auth != null",
+          ".write": "auth != null"
+        },
+        "history": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          "$timestamp": {
+            ".read": "auth != null",
+            ".write": "auth != null"
+          }
+        }
       }
     }
   }
