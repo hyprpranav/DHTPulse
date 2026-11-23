@@ -82,6 +82,7 @@ unsigned long lastSampleTime = 0;
 unsigned long lastWifiRetryTime = 0;
 bool wifiWasConnected = false;
 bool mlxInitialized = false;
+bool firebaseInitialized = false;
 
 // NTP Server Configuration for UTC Timestamps
 const char* NTP_SERVER_1 = "pool.ntp.org";
@@ -125,28 +126,38 @@ void initWiFi() {
   WiFi.setAutoReconnect(true);
   WiFi.persistent(true);
   
-  Serial.println("[ INIT ] Connecting to Wi-Fi: " + String(WIFI_SSID));
+  Serial.println("[ INIT ] Connecting to Wi-Fi SSID: \"" + String(WIFI_SSID) + "\"");
+  Serial.println("[ NOTE ] Ensure your phone's Personal Hotspot is turned ON and set to the 2.4 GHz band!");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   
-  unsigned long startAttempt = millis();
-  while (WiFi.status() != WL_CONNECTED && millis() - startAttempt < 10000) {
-    delay(250);
+  // Wait until Wi-Fi connects so we don't trigger Firebase token requests without internet
+  int retryCount = 0;
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
     Serial.print(".");
+    retryCount++;
+    
+    // Every 20 seconds, re-trigger WiFi.begin() in case the hotspot was turned on late
+    if (retryCount % 40 == 0) {
+      Serial.println();
+      Serial.println("[ RETRY ] Re-attempting Wi-Fi connection to: " + String(WIFI_SSID));
+      WiFi.disconnect();
+      delay(500);
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    }
   }
-  Serial.println();
   
-  if (WiFi.status() == WL_CONNECTED) {
-    wifiWasConnected = true;
-    Serial.println("[ OK ] Wi-Fi Connected! IP: " + WiFi.localIP().toString());
-  } else {
-    Serial.println("[ WARN ] Wi-Fi connection timed out. Retrying in background.");
-  }
+  wifiWasConnected = true;
+  Serial.println();
+  Serial.println("[ OK ] Wi-Fi Connected Successfully!");
+  Serial.print("[ INFO ] IP Address Assigned: ");
+  Serial.println(WiFi.localIP());
 }
 
 void monitorWiFiConnection() {
   if (WiFi.status() != WL_CONNECTED) {
     if (wifiWasConnected) {
-      Serial.println("\n[ WARN ] Wi-Fi connection lost! Auto-reconnecting...");
+      Serial.println("\n[ WARN ] Wi-Fi connection lost! Auto-reconnecting in background...");
       wifiWasConnected = false;
     }
     if (millis() - lastWifiRetryTime >= WIFI_RETRY_INTERVAL_MS) {
@@ -166,14 +177,19 @@ void monitorWiFiConnection() {
 // HELPER: Initialize Firebase Client
 // ============================================================================
 void initFirebase() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("[ WAIT ] Wi-Fi not ready. Postponing Firebase initialization...");
+    return;
+  }
+
   Serial.println("[ INIT ] Initializing Firebase RTDB Client...");
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
   
-  // Anonymous Sign-Up (Token generation)
-  Serial.println("[ AUTH ] Requesting Anonymous Auth Token...");
+  // Request Anonymous Auth Token
+  Serial.println("[ AUTH ] Requesting Anonymous Auth Token from Firebase...");
   if (Firebase.signUp(&config, &auth, "", "")) {
-    Serial.println("[ OK ] Anonymous Authentication Ready.");
+    Serial.println("[ OK ] Anonymous Authentication Handshake Ready.");
   } else {
     Serial.print("[ WARN ] Auth notice: ");
     Serial.println(config.signer.signupError.message.c_str());
@@ -184,7 +200,8 @@ void initFirebase() {
   fbdo.setResponseSize(2048);
   
   Firebase.begin(&config, &auth);
-  Serial.println("[ OK ] Firebase Client Configured.");
+  firebaseInitialized = true;
+  Serial.println("[ OK ] Firebase Client Configured & Connected.");
 }
 
 // ============================================================================
@@ -227,7 +244,9 @@ void setup() {
   Serial.println("[ OK ] SNTP Real-Time Clock Configured.");
   
   // 6. Initialize Firebase
-  initFirebase();
+  if (WiFi.status() == WL_CONNECTED) {
+    initFirebase();
+  }
 }
 
 // ============================================================================
@@ -235,6 +254,11 @@ void setup() {
 // ============================================================================
 void loop() {
   monitorWiFiConnection();
+  
+  // If Wi-Fi connected later, initialize Firebase now
+  if (WiFi.status() == WL_CONNECTED && !firebaseInitialized) {
+    initFirebase();
+  }
   
   bool isFirebaseReady = Firebase.ready();
   unsigned long currentMillis = millis();
