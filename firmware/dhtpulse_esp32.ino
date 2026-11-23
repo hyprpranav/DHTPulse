@@ -174,6 +174,35 @@ void monitorWiFiConnection() {
 }
 
 // ============================================================================
+// HELPER: Synchronous SNTP Real-Time Clock Synchronization
+// ============================================================================
+// CRITICAL: SSL/TLS handshakes with Google/Firebase require accurate system time!
+// If time is not synced (Epoch = 0 / year 1970), SSL certificate validation fails
+// with "ERROR.mConnectSSL: Failed to initialize the SSL layer".
+void syncNTPTime() {
+  Serial.print("[ NTP ] Synchronizing time with atomic clock servers");
+  configTime(0, 0, NTP_SERVER_1, NTP_SERVER_2);
+  
+  time_t now = time(nullptr);
+  int retry = 0;
+  // Wait until year is >= 2023 (timestamp > 1672531199)
+  while (now < 1672531199 && retry < 30) {
+    delay(500);
+    Serial.print(".");
+    now = time(nullptr);
+    retry++;
+  }
+  Serial.println();
+  
+  if (now >= 1672531199) {
+    Serial.print("[ OK ] System Clock Synchronized: ");
+    Serial.print(ctime(&now));
+  } else {
+    Serial.println("[ WARN ] NTP sync took longer than expected. Continuing...");
+  }
+}
+
+// ============================================================================
 // HELPER: Initialize Firebase Client
 // ============================================================================
 void initFirebase() {
@@ -182,9 +211,15 @@ void initFirebase() {
     return;
   }
 
+  // 1. Ensure NTP time is synced before attempting SSL connection
+  syncNTPTime();
+
   Serial.println("[ INIT ] Initializing Firebase RTDB Client...");
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
+  
+  // Allocate balanced SSL response buffer to prevent heap exhaustion
+  fbdo.setResponseSize(1024);
   
   // Request Anonymous Auth Token
   Serial.println("[ AUTH ] Requesting Anonymous Auth Token from Firebase...");
@@ -197,7 +232,6 @@ void initFirebase() {
   
   config.token_status_callback = tokenStatusCallback;
   Firebase.reconnectWiFi(true);
-  fbdo.setResponseSize(2048);
   
   Firebase.begin(&config, &auth);
   firebaseInitialized = true;
@@ -239,11 +273,7 @@ void setup() {
   // 4. Initialize Wi-Fi
   initWiFi();
   
-  // 5. Initialize SNTP for UTC Time
-  configTime(0, 0, NTP_SERVER_1, NTP_SERVER_2);
-  Serial.println("[ OK ] SNTP Real-Time Clock Configured.");
-  
-  // 6. Initialize Firebase
+  // 5. Initialize Firebase & Sync Time
   if (WiFi.status() == WL_CONNECTED) {
     initFirebase();
   }
